@@ -1,74 +1,142 @@
 import cv2
-import mediapipe as mp
+import cvzone 
+import time
+import random
+from cvzone.HandTrackingModule import HandDetector
 
-# def rescaleFrame(frame, scale = 0.75):
-#     width = int(frame.shape[1] * scale)
-#     height = int(frame.shape[0] * scale)
-#     dimensions = (width, height)
-#     return cv2.resize(frame, dimensions, interpolation = cv2.INTER_AREA)
+def countFingers(arr):
+    fingers = 0
+    for i in arr:
+        if i == 1:
+            fingers += 1
+    return fingers
 
-# def changeRes(width, height):
-#     cap.set(3, width)
-#     cap.set(4, height)
+def headsOrTails(a, b):
+    if ((a+b) % 2) == 0:
+        return "Tails"
+    else: 
+        return "Heads"
 
-
-image_path = "hands.jpg"
-image = cv2.imread(image_path)
 cap = cv2.VideoCapture(0)
-mpHands = mp.solutions.hands
-hands = mpHands.Hands()
-mpDraw = mp.solutions.drawing_utils
-fingerCoordinates = [(8,6), (12,10), (16,14), (20, 18)]
-thumbCoordinates = (4, 2)
+cap.set(3, 640) # to change width
+cap.set(4, 480) # to change height
+
+detector = HandDetector(maxHands = 1)
+
+timer = 0
+stateResult = False
+startGame = False
+scores = [0, 0] # [AI, Player]
+playerChoice = None
+batting = None
+won = None
+winner = None
 
 while True:
+    imgBG = cv2.imread("./Assets/HTBG.png")
     success, img = cap.read()
-    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = hands.process(imgRGB)
-    multiLandMarks = results.multi_hand_landmarks
+    imgScaled = cv2.resize(img, (0, 0), None, 0.875, 0.875)
+    imgScaled = imgScaled[:,80:480]
     
+    # Find Hands
+    hands, img = detector.findHands(imgScaled)
     
-    frame_height, frame_width, _ = img.shape
-    image = cv2.resize(image, (frame_width, frame_height))
-    
-    combined_frame = cv2.hconcat([img, image])
-    
-    if multiLandMarks:
-        handPoints = []
-        for handLms in multiLandMarks:
-            # mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
-
-            for idx, lm in enumerate(handLms.landmark):
-                h, w, c = img.shape
-                cx, cy = int(lm.x*w), int(lm.y*h)
-                handPoints.append((cx, cy))
-
-        # for point in handPoints:
-        #     cv2.circle(img, point, 10, (255, 0, 255), cv2.FILLED)
-            
-        upCount = 0
-        flag = 0
-        for coordinate in fingerCoordinates:
-            if handPoints[coordinate[0]][1] < handPoints[coordinate[1]][1]:
-                upCount += 1
-        if upCount == 0 and handPoints[thumbCoordinates[0]][0] > handPoints[thumbCoordinates[1]][0]:
-            flag = 1
+    if startGame:
+        if stateResult is False:
+            timer = time.time() - initialTime
+            cv2.putText(imgBG, str(int(timer)), (605, 400), cv2.FONT_HERSHEY_PLAIN, 6, (255, 255, 0), 4)
         
-        if handPoints[thumbCoordinates[0]][0] > handPoints[thumbCoordinates[1]][0]:
-            upCount += 1
+            if timer > 3:
+                timer = 0
+                stateResult = True
         
-        if upCount == 0:
-            upCount = 10
-            cv2.putText(combined_frame, str(upCount), (80, 150), cv2.FONT_HERSHEY_PLAIN, 12, (0, 255, 0), 12)
-        elif flag == 1:
-            upCount = 6
-            cv2.putText(combined_frame, str(upCount), (80, 150), cv2.FONT_HERSHEY_PLAIN, 12, (0, 255, 0), 12)
-        else:
-            cv2.putText(combined_frame, str(upCount), (80, 150), cv2.FONT_HERSHEY_PLAIN, 12, (255, 0, 0), 12)
+                if hands:
+                    hand = hands[0]
+                    fingers = detector.fingersUp(hand)
+                    
+                    if won == None:
+                        playerMove = countFingers(fingers)
+                        randomNumber = random.randint(1, 5)
+                        imgAI = cv2.imread(f"./Assets/{randomNumber}.png", cv2.IMREAD_UNCHANGED)
+                        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
+                        if headsOrTails(playerMove, randomNumber) == playerChoice:
+                            won = "Player"
+                        else:
+                            won = "AI"
+                            rand = random.randint(1, 100)
+                            print("rand: " + str(rand))
+                            if rand % 2 == 0:
+                                batting = "AI"
+                            else:
+                                batting = "Player"
+                        print("won: " + won)
+                        continue
+                    else:
+                        if(fingers == [1, 0, 0, 0, 0]):
+                            playerMove = 6
+                        elif (fingers == [0, 0, 0, 0, 0]):
+                            playerMove = 10
+                        else:
+                            playerMove = countFingers(fingers)
+                            
+                        randomNumber = random.randint(1, 7)
+                        if(randomNumber == 7):
+                            aiMove = 10
+                        else:
+                            aiMove = randomNumber
+                        imgAI = cv2.imread(f"./Assets/{randomNumber}.png", cv2.IMREAD_UNCHANGED)
+                        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
 
-        print(upCount)
-
-    # frameResized = rescaleFrame(img, scale = 1.25)
-    cv2.imshow("Dual View", combined_frame)
-    # cv2.imshow("Finger Counter", )
-    cv2.waitKey(5)
+                        if(playerMove == aiMove):
+                            if batting == "Player":
+                                batting = "AI"
+                            elif batting == "AI":
+                                batting = "Player"
+                        else:
+                            if batting == "Player":
+                                scores[1] += playerMove
+                            elif batting == "AI":
+                                scores[0] += aiMove
+                        
+                    if batting == None:
+                            if (fingers == [0,0,0,0,0]):
+                                batting = "AI"
+                            elif (fingers == [1,1,1,1,1]):
+                                batting = "Player"
+                    print("batting: " + batting)
+                    
+                    
+                    
+    imgBG[234:654,795:1195] = imgScaled
+    
+    cv2.putText(imgBG, str(int(scores[0])), (410, 215-40), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
+    cv2.putText(imgBG, str(int(scores[1])), (1112, 215-40), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
+    
+    if not startGame:
+        cv2.putText(imgBG, "Press 'H' for Heads", (200, 400), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 255), 5)
+        cv2.putText(imgBG, "Press 'T' for Tails", (200, 500), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 255), 5)
+    
+    if won and batting == None:
+        cv2.putText(imgBG, "Show paper to bat, and rock to bowl", (200, 400), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
+    
+    if stateResult:
+        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
+        
+    cv2.flip(img,-1)
+    cv2.imshow("BG", imgBG)
+    
+    key = cv2.waitKey(1)
+    if key == ord('h'):
+        startGame = True
+        initialTime = time.time()
+        stateResult = False
+        playerChoice = "Heads"
+    elif key == ord('t'):
+        startGame = True
+        initialTime = time.time()
+        stateResult = False
+        playerChoice = "Tails"
+    elif key == ord(' '):
+        startGame = True
+        initialTime = time.time()
+        stateResult = False
