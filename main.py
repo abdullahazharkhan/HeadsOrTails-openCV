@@ -31,6 +31,8 @@ playerChoice = None
 batting = None
 won = None
 winner = None
+lastPlayed = None
+target = None
 
 while True:
     imgBG = cv2.imread("./Assets/HTBG.png")
@@ -85,18 +87,42 @@ while True:
                         else:
                             aiMove = randomNumber
                         imgAI = cv2.imread(f"./Assets/{randomNumber}.png", cv2.IMREAD_UNCHANGED)
-                        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
-
+                        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))    
+                        
                         if(playerMove == aiMove):
-                            if batting == "Player":
-                                batting = "AI"
-                            elif batting == "AI":
-                                batting = "Player"
+                            if lastPlayed == None:
+                                if batting == "Player":
+                                    target = scores[1] + 1
+                                    batting = "AI"
+                                    lastPlayed = "Player"
+                                elif batting == "AI":
+                                    target = scores[0] + 1
+                                    batting = "Player"
+                                    lastPlayed = "AI"
+                                    
+                            elif lastPlayed == "Player" and scores[0] < target:
+                                winner = "Player"
+                                print("elif mei hun")
+                                startGame = False
+                            elif lastPlayed == "AI" and scores[1] < target:
+                                winner = "AI"
+                                print("elif mei hun")
+                                startGame = False
                         else:
                             if batting == "Player":
                                 scores[1] += playerMove
                             elif batting == "AI":
                                 scores[0] += aiMove
+                        
+                        if lastPlayed == "AI" and (scores[1] >= target):
+                            winner = "Player"
+                            print("neeche wale if mei hun")
+                            startGame = False
+                        elif lastPlayed == "Player" and (scores[0] >= target):
+                            winner = "AI"
+                            print("neeche wale if mei hun")
+                            startGame = False
+                        
                         
                     if batting == None:
                             if (fingers == [0,0,0,0,0]):
@@ -122,6 +148,9 @@ while True:
     if stateResult:
         imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
         
+    if winner != None:
+        cv2.putText(imgBG, "Winner: " + winner, (600, 600), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 5)
+        
     cv2.flip(img,-1)
     cv2.imshow("BG", imgBG)
     
@@ -131,12 +160,26 @@ while True:
         initialTime = time.time()
         stateResult = False
         playerChoice = "Heads"
+        scores = [0, 0]
+        batting = None
+        won = None
+        winner = None
+        lastPlayed = None
+        target = None
     elif key == ord('t'):
         startGame = True
         initialTime = time.time()
         stateResult = False
         playerChoice = "Tails"
+        scores = [0, 0]
+        batting = None
+        won = None
+        winner = None
+        lastPlayed = None
+        target = None
     elif key == ord(' '):
         startGame = True
         initialTime = time.time()
         stateResult = False
+    elif key == ord('q'):
+        break
