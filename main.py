@@ -48,7 +48,7 @@ while True:
     if startGame:
         if stateResult is False:
             timer = time.time() - initialTime
-            cv2.putText(imgBG, str(int(timer)), (615, 260), cv2.FONT_HERSHEY_PLAIN, 6, (255, 255, 0), 4)
+            cv2.putText(imgBG, str(int(timer)), (608, 260), cv2.FONT_HERSHEY_PLAIN, 6, (255, 255, 0), 4)
         
             if timer > 3:
                 timer = 0
@@ -147,8 +147,8 @@ while True:
         cv2.putText(imgBG, "Show 5 to bat, and 10/0 to bowl", (240, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
     
     if won:
-        cv2.putText(imgBG, "'SPACE' to continue", (506, 554), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
-        cv2.putText(imgBG, "'Q' to quit", (506, 574), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
+        cv2.putText(imgBG, "'SPACE' to continue", (566, 554), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
+        cv2.putText(imgBG, "'Q' to quit", (566, 574), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
     
     if batting:
         cv2.putText(imgBG, "Batting: " + batting, (523, 320), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
@@ -160,35 +160,29 @@ while True:
     if winner != None:
         cv2.putText(imgBG, "Winner: " + winner, (520, 440), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 5)
         
+    if target and winner == None:
+        cv2.putText(imgBG, "Target: " + str(target), (520, 400), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 5)
     cv2.flip(img,-1)
     cv2.imshow("BG", imgBG)
     
     key = cv2.waitKey(1)
-    if key == ord('h'):
+    
+    if key == ord('h') or key == ord('t') or key == ord(' '):
         startGame = True
         initialTime = time.time()
         stateResult = False
-        playerChoice = "Heads"
-        scores = [0, 0]
-        batting = None
-        won = None
-        winner = None
-        lastPlayed = None
-        target = None
-    elif key == ord('t'):
-        startGame = True
-        initialTime = time.time()
-        stateResult = False
-        playerChoice = "Tails"
-        scores = [0, 0]
-        batting = None
-        won = None
-        winner = None
-        lastPlayed = None
-        target = None
-    elif key == ord(' '):
-        startGame = True
-        initialTime = time.time()
-        stateResult = False
+        if key == ord('h') or key == ord('t'):
+            playerChoice = "Heads"
+            scores = [0, 0]
+            batting = None
+            won = None
+            winner = None
+            lastPlayed = None
+            target = None
+            
+            if key == ord('h'):
+                playerChoice = "Heads"
+            elif key == ord('t'):
+                playerChoice = "Tails"
     elif key == ord('q'):
         break
