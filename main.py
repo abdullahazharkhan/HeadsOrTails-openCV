@@ -23,6 +23,8 @@ cap.set(4, 480) # to change height
 
 detector = HandDetector(maxHands = 1)
 
+imgAI = cv2.imread(f"./Assets/{5}-wobg.png", cv2.IMREAD_UNCHANGED)
+
 timer = 0
 stateResult = False
 startGame = False
@@ -35,7 +37,7 @@ lastPlayed = None
 target = None
 
 while True:
-    imgBG = cv2.imread("./Assets/HTBG.png")
+    imgBG = cv2.imread("./Assets/bg.png")
     success, img = cap.read()
     imgScaled = cv2.resize(img, (0, 0), None, 0.875, 0.875)
     imgScaled = imgScaled[:,80:480]
@@ -46,7 +48,7 @@ while True:
     if startGame:
         if stateResult is False:
             timer = time.time() - initialTime
-            cv2.putText(imgBG, str(int(timer)), (605, 400), cv2.FONT_HERSHEY_PLAIN, 6, (255, 255, 0), 4)
+            cv2.putText(imgBG, str(int(timer)), (615, 260), cv2.FONT_HERSHEY_PLAIN, 6, (255, 255, 0), 4)
         
             if timer > 3:
                 timer = 0
@@ -59,19 +61,19 @@ while True:
                     if won == None:
                         playerMove = countFingers(fingers)
                         randomNumber = random.randint(1, 5)
-                        imgAI = cv2.imread(f"./Assets/{randomNumber}.png", cv2.IMREAD_UNCHANGED)
+                        imgAI = cv2.imread(f"./Assets/{randomNumber}-wobg.png", cv2.IMREAD_UNCHANGED)
                         imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
                         if headsOrTails(playerMove, randomNumber) == playerChoice:
                             won = "Player"
                         else:
                             won = "AI"
                             rand = random.randint(1, 100)
-                            print("rand: " + str(rand))
+                            # print("rand: " + str(rand))
                             if rand % 2 == 0:
                                 batting = "AI"
                             else:
                                 batting = "Player"
-                        print("won: " + won)
+                        # print("won: " + won)
                         continue
                     else:
                         if(fingers == [1, 0, 0, 0, 0]):
@@ -86,8 +88,8 @@ while True:
                             aiMove = 10
                         else:
                             aiMove = randomNumber
-                        imgAI = cv2.imread(f"./Assets/{randomNumber}.png", cv2.IMREAD_UNCHANGED)
-                        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))    
+                        imgAI = cv2.imread(f"./Assets/{randomNumber}-wobg.png", cv2.IMREAD_UNCHANGED)
+                        # imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 380))    
                         
                         if(playerMove == aiMove):
                             if lastPlayed == None:
@@ -102,11 +104,11 @@ while True:
                                     
                             elif lastPlayed == "Player" and scores[0] < target:
                                 winner = "Player"
-                                print("elif mei hun")
+                                # print("elif mei hun")
                                 startGame = False
                             elif lastPlayed == "AI" and scores[1] < target:
                                 winner = "AI"
-                                print("elif mei hun")
+                                # print("elif mei hun")
                                 startGame = False
                         else:
                             if batting == "Player":
@@ -116,11 +118,11 @@ while True:
                         
                         if lastPlayed == "AI" and (scores[1] >= target):
                             winner = "Player"
-                            print("neeche wale if mei hun")
+                            # print("neeche wale if mei hun")
                             startGame = False
                         elif lastPlayed == "Player" and (scores[0] >= target):
                             winner = "AI"
-                            print("neeche wale if mei hun")
+                            # print("neeche wale if mei hun")
                             startGame = False
                         
                         
@@ -129,27 +131,34 @@ while True:
                                 batting = "AI"
                             elif (fingers == [1,1,1,1,1]):
                                 batting = "Player"
-                    print("batting: " + batting)
+                    # print("batting: " + batting)
                     
                     
                     
-    imgBG[234:654,795:1195] = imgScaled
+    imgBG[235:655,91:491] = imgScaled
     
-    cv2.putText(imgBG, str(int(scores[0])), (410, 215-40), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
-    cv2.putText(imgBG, str(int(scores[1])), (1112, 215-40), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
+    cv2.putText(imgBG, str(int(scores[1])), (410, 215), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
+    cv2.putText(imgBG, str(int(scores[0])), (1112, 215), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 5)
     
     if not startGame:
-        cv2.putText(imgBG, "Press 'H' for Heads", (200, 400), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 255), 5)
-        cv2.putText(imgBG, "Press 'T' for Tails", (200, 500), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 255), 5)
+        cv2.putText(imgBG, "Press 'H' for Heads, 'T' for Tails", (240, 100), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 255), 5)
     
     if won and batting == None:
-        cv2.putText(imgBG, "Show paper to bat, and rock to bowl", (200, 400), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
+        cv2.putText(imgBG, "Show 5 to bat, and 10/0 to bowl", (240, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
+    
+    if won:
+        cv2.putText(imgBG, "'SPACE' to continue", (506, 554), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
+        cv2.putText(imgBG, "'Q' to quit", (506, 574), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
+    
+    if batting:
+        cv2.putText(imgBG, "Batting: " + batting, (523, 320), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255), 5)
     
     if stateResult:
-        imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
+        imgAI = cv2.resize(imgAI, (500, 500), interpolation=cv2.INTER_AREA)
+        imgBG = cvzone.overlayPNG(imgBG, imgAI, (750, 200))
         
     if winner != None:
-        cv2.putText(imgBG, "Winner: " + winner, (600, 600), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 5)
+        cv2.putText(imgBG, "Winner: " + winner, (520, 440), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 5)
         
     cv2.flip(img,-1)
     cv2.imshow("BG", imgBG)
