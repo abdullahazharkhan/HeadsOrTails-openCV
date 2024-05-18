@@ -20,7 +20,7 @@ HeadsTails is played between two players. The game involves choosing between Hea
 - 2 fingers = 2 runs
 - 3 fingers = 3 runs
 - 4 fingers = 4 runs
-- 5 fingers = 4 runs
+- 5 fingers = 5 runs
 - Thumb = 6 runs
 - No fingers (closed fist) = 10 runs
 - If the batter and bowler show the same hand gesture, the batter is out.
