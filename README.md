@@ -6,6 +6,11 @@ A popular hand-gesture-based game known as HeadsTails, built with Python and Ope
 
 ### How to Play
 HeadsTails is played between two players. The game involves choosing between Heads or Tails and then using hand gestures to represent runs, similar to cricket but with hands.
+
+**Wait for the timer to turn 3 to take your move (hand gesture) as an input.**
+
+**Press SPACE to go to the next step.**
+
 #### Start
 - At the start of the game, each player chooses either Heads or Tails.
 - A toss is conducted to determine the starting player.
