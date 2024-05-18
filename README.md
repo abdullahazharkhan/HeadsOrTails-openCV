@@ -1,6 +1,10 @@
 # HeadsTails - with ComputerVision
 A popular hand-gesture-based game known as HeadsTails, built with Python and OpenCV.
-### About the Game
+
+### Demo
+[HeadsTails.webm](https://github.com/abdullahazharkhan/HeadTail-openCV/assets/109475658/c24edb51-3f1b-4de9-bbac-edc6921312cf)
+
+### How to Play
 HeadsTails is played between two players. The game involves choosing between Heads or Tails and then using hand gestures to represent runs, similar to cricket but with hands.
 #### Start
 - At the start of the game, each player chooses either Heads or Tails.
@@ -26,6 +30,3 @@ HeadsTails is played between two players. The game involves choosing between Hea
 #### Winning the Game:
 - If the new batter successfully completes the target, he wins.
 - If the new batter fails to meet the target i.e. gets out, the opponent wins.
-
-### Demo
-// video link coming soon
